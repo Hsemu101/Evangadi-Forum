@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 async function authmiddleware(req, res, next){
     const authheader = req.headers.authorization
     if(!authheader){
-        return res.json({error: "authentication invalid"})
+        return res.status(401).json({error: "authentication invalid"})
     }
 
     try {
