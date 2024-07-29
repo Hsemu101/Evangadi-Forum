@@ -1,6 +1,23 @@
+
 const Express = require("express");
 const app = Express();
+const https = require("https")
+const fs = require("fs")
+const path = require("path")
+const cors = require('cors');
 
+
+const privateKeyPath = path.join(__dirname, 'private-key-no-passphrase.pem');
+const certificatePath = path.join(__dirname, 'certificate.pem');
+
+const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+const certificate = fs.readFileSync(certificatePath, 'utf8');
+
+
+const options = {
+    key: privateKey,
+    cert: certificate
+  };
 
 
 
@@ -17,9 +34,8 @@ app.use("/api/users/",  userRoutes)
 
 
 
+// answer route middleware
 
-
-// answer route muddleware
 
 
 
@@ -27,11 +43,11 @@ app.use("/api/users/",  userRoutes)
 async function Testdb(){
     try {
         // const result = await MyDataBaseConnection.execute("SELECT 'test' ") 
-        app.listen(5500)
+        https.createServer(options, app).listen(5500, () =>{
         console.log("DB connection is established")
         console.log("Listneing on port 5500")
         // console.log(result)
-     } catch (error) {
+     })} catch (error) {
          console.log(error.message)
      }
 }
