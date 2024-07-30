@@ -1,0 +1,269 @@
+Database structure
+
+CREATE TABLE users(
+	userid INT(20) NOT NULL AUTO_INCREMENT,
+	username VARCHAR(20) NOT NULL,
+	firstname VARCHAR(20) NOT NULL,
+	lastname VARCHAR(20) NOT NULL,
+	email VARCHAR(40) NOT NULL,
+	password VARCHAR(100) NOT NULL,
+	primary key(userid)
+);
+
+CREATE TABLE questions(
+	id INT(20) NOT NULL AUTO_INCREMENT,
+    questionid VARCHAR(100) NOT NULL UNIQUE,
+    userid INT(20) NOT NULL,
+    title VARCHAR(50) NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    tag VARCHAR(20),
+    PRIMARY KEY (id, questionid),
+    FOREIGN KEY(userid) REFERENCES users(userid)
+);
+
+CREATE TABLE answers(
+	answerid INT(20) NOT NULL AUTO_INCREMENT,
+    userid INT(20) NOT NULL,
+    questionid VARCHAR(100) NOT NULL,
+    answer VARCHAR(200) NOT NULL,
+    PRIMARY KEY(answerid),
+    FOREIGN KEY(questionid) REFERENCES questions(questionid),
+    FOREIGN KEY(userid) REFERENCES users(userid)
+)
+
+
+Database.js
+
+require("dotenv").config()
+const mysql2 = require("mysql2")
+
+const MyDataBaseConnection = mysql2.createPool({
+    user: process.env.DB_USER,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    password: process.env.DB_PASSWORD,
+    connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT, 10)
+})
+
+// MyDataBaseConnection.execute("select 'test' ",(err, result) =>{
+//     if (err){
+//         console.log(err.message)
+//     }else{
+//         console.log(result)
+//     }
+// })
+
+module.exports = MyDataBaseConnection.promise()
+
+
+
+
+
+usercontroller.js
+
+const MyDataBaseConnection = require("../db/db.config")
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+const authentication = require("../middleware/autentication")
+const { StatusCodes } = require("http-status-codes")
+
+
+async function register(req,res) {
+    // res.send("register user")
+    const {username, firstname, lastname, email, password} = req.body
+   if(!username || !firstname || !lastname || !email || !password){
+    return res.status(404).json({msg: "Please enter all necessary informations"})
+   }
+   try {
+    const [user] = await MyDataBaseConnection.query("SELECT username, userid from users where username=? or email=?", [username,email])
+    // return res.json({user: user})
+    if(user.length > 0){
+      return res.status(404).json({msg: "user already exists"})
+    }
+    if(password.length <= 8){
+        return res.status(401).json({msg: "please enter a valid password"})
+    }
+
+    // encrypting the password
+    const salt = await bcrypt.genSalt(10)
+    const hashPassword = await bcrypt.hash(password, salt)
+
+
+    await MyDataBaseConnection.query("INSERT INTO USERS (username, firstname, lastname, email, password) VALUES (?,?,?,?,?)", [username, firstname, lastname, email, hashPassword])
+    return res.status(200).json({msg: "Table has been created"})
+} catch (error) {
+    
+}
+}
+
+async function login (req,res){
+    // res.send("login user")
+    const {email, password} = req.body
+    if(!email || !password){
+    //    return res.status(400).json({msg: "NOT FOUND"})
+    }
+    try {
+
+        const [user] = await MyDataBaseConnection.query("SELECT username, userid, password from users where email = ? ",[email])
+        if(user.length === 0){
+            res.status(404).json({msg: "Not Found"})
+        }
+       const Match = await bcrypt.compare(password, user[0].password)
+        if(!Match){
+            return res.status(404).json({msg: "Invalid username or password"})
+        }
+
+        const username = user[0].username
+        const userid = user[0].userid
+       const token = jwt.sign({username, userid }, process.env.JWT_KEY, {expiresIn: "1d"})
+        return res.json({msg: "user login sucessful", token, username})
+
+
+    } catch (error) {
+        console.log(error.message)
+        return res.status(400).json({msg: "something went wrong"})
+    }
+
+}
+
+async function check(req, res){
+    const username = req.user.username
+    const userid = req.user.userid
+    res.json({msg: "valid user", username, userid})
+
+}
+
+module.exports = {register, login, check}
+
+
+
+
+
+userRoute.js
+
+const express = require("express")
+const {register, check, login} = require("../Controller/userController")
+const authMiddleware = require("../middleware/autentication")
+
+const router = express.Router()
+
+
+
+router.post("/register", register)
+
+//login user
+router.post("/login", login)
+
+// check user
+router.get("/check", authMiddleware, check)
+
+module.exports = router
+
+
+
+
+authentication.js
+
+
+const jwt = require("jsonwebtoken")
+
+async function authmiddleware(req, res, next){
+    const authheader = req.headers.authorization
+    if(!authheader){
+        return res.status(401).json({error: "authentication invalid"})
+    }
+
+    try {
+        
+        const {username, userid} = jwt.verify(authheader, process.env.JWT_KEY)
+        req.user = { username, userid}
+        next()
+    } catch (error) {
+        console.log(error.message)
+        return res.status(401).json({msg: "Unauthorized user"})
+    }
+
+}
+
+module.exports = authmiddleware
+
+
+
+
+.env file
+
+DB_USER=forum-admin
+DB_NAME=evangadiforumtable
+DB_HOST=localhost
+DB_PASSWORD=1234567
+DB_CONNECTION_LIMIT=10
+JWT_KEY=MBv9wzDKoA1Ne3ufGjcaa5SnArLNm38lsd53453fsd3543fdsfd5345sfdsxx
+
+
+
+gitignore file
+.env
+
+
+
+
+
+app.js
+
+
+const Express = require("express");
+const app = Express();
+const https = require("https")
+const fs = require("fs")
+const path = require("path")
+const cors = require('cors');
+
+
+const privateKeyPath = path.join(__dirname, 'private-key-no-passphrase.pem');
+const certificatePath = path.join(__dirname, 'certificate.pem');
+
+const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+const certificate = fs.readFileSync(certificatePath, 'utf8');
+
+
+const options = {
+    key: privateKey,
+    cert: certificate
+  };
+
+
+
+//user route middleware  
+const userRoutes = require("./routes/userRoute")
+const MyDataBaseConnection = require("./db/db.config")
+
+app.use(Express.json())
+app.use("/api/users/",  userRoutes)
+
+///question route middle ware
+
+
+
+
+
+// answer route middleware
+
+
+
+
+
+async function Testdb(){
+    try {
+        // const result = await MyDataBaseConnection.execute("SELECT 'test' ") 
+        https.createServer(options, app).listen(5500, () =>{
+        console.log("DB connection is established")
+        console.log("Listneing on port 5500")
+        // console.log(result)
+     })} catch (error) {
+         console.log(error.message)
+     }
+}
+Testdb()
+
+
+

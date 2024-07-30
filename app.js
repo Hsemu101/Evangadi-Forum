@@ -7,6 +7,7 @@ const path = require("path")
 const cors = require('cors');
 
 
+
 const privateKeyPath = path.join(__dirname, 'private-key-no-passphrase.pem');
 const certificatePath = path.join(__dirname, 'certificate.pem');
 
@@ -22,11 +23,16 @@ const options = {
 
 
 //user route middleware  
-const userRoutes = require("./routes/userRoute")
+const userRoutes = require("./routes/userRoute") //userRoute
+const answerRoutes = require("./routes/answerRoute"); //answerRoute
+const questionRoutes = require("./routes/questionRoute"); // Question routes
 const MyDataBaseConnection = require("./db/db.config")
 
-app.use(Express.json())
-app.use("/api/users/",  userRoutes)
+app.use(Express.json());
+app.use(cors());
+app.use("/api/users/",  userRoutes) //user
+app.use("/api", answerRoutes); //answer
+app.use("/api", questionRoutes); //questionRoutes
 
 ///question route middle ware
 
@@ -52,3 +58,7 @@ async function Testdb(){
      }
 }
 Testdb()
+
+
+
+

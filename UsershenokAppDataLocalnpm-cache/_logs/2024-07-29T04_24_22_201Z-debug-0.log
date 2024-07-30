@@ -1,0 +1,38 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.5.2
+2 info using node@v20.13.1
+3 timing npm:load:whichnode Completed in 2ms
+4 timing config:load:defaults Completed in 1ms
+5 timing config:load:file:C:\Program Files\nodejs\node_modules\npm\npmrc Completed in 2ms
+6 timing config:load:builtin Completed in 2ms
+7 timing config:load:cli Completed in 2ms
+8 timing config:load:env Completed in 0ms
+9 timing config:load:file:c:\Evangadi\Phase-4\Evangadi-Forum\.npmrc Completed in 1ms
+10 timing config:load:project Completed in 2ms
+11 timing config:load:file:C:\Users\henok\.npmrc Completed in 0ms
+12 timing config:load:user Completed in 0ms
+13 timing config:load:file:C:\Evangadi\Phase-4\Evangadi-Forum\UsershenokAppDataRoamingnpm\etc\npmrc Completed in 1ms
+14 timing config:load:global Completed in 1ms
+15 timing config:load:setEnvs Completed in 0ms
+16 timing config:load Completed in 8ms
+17 timing npm:load:configload Completed in 8ms
+18 timing config:load:flatten Completed in 2ms
+19 timing npm:load:mkdirpcache Completed in 0ms
+20 timing npm:load:mkdirplogs Completed in 0ms
+21 verbose title npm view mysql2 description dist-tags.latest homepage version time
+22 verbose argv "view" "--json" "--" "mysql2" "description" "dist-tags.latest" "homepage" "version" "time"
+23 timing npm:load:setTitle Completed in 1ms
+24 timing npm:load:display Completed in 1ms
+25 verbose logfile logs-max:10 dir:C:\Evangadi\Phase-4\Evangadi-Forum\UsershenokAppDataLocalnpm-cache\_logs\2024-07-29T04_24_22_201Z-
+26 verbose logfile C:\Evangadi\Phase-4\Evangadi-Forum\UsershenokAppDataLocalnpm-cache\_logs\2024-07-29T04_24_22_201Z-debug-0.log
+27 timing npm:load:logFile Completed in 5ms
+28 timing npm:load:timers Completed in 0ms
+29 timing npm:load:configScope Completed in 0ms
+30 timing npm:load Completed in 39ms
+31 silly logfile start cleaning logs, removing 1 files
+32 silly logfile done cleaning log files
+33 http fetch GET 200 https://registry.npmjs.org/mysql2 121ms (cache miss)
+34 timing command:view Completed in 130ms
+35 verbose exit 0
+36 timing npm Completed in 447ms
+37 info ok
