@@ -12,14 +12,14 @@ async function getAnswersForQuestion(req, res) {
         
         // Check if any answers are found
         if (answers.length === 0) {
-            return res.status(StatusCodes.NOT_FOUND).json({ msg: "No answers found for this question" });
+            return res.status(404).json({ msg: "No answers found for this question" });
         }
 
         // Return the answers
-        return res.status(StatusCodes.OK).json({ answers });
+        return res.status(404).json({ answers });
     } catch (error) {
         console.error(error.message);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "An error occurred while retrieving answers" });
+        return res.status(404).json({ msg: "An error occurred while retrieving answers" });
     }
 }
 
@@ -27,17 +27,18 @@ async function getAnswersForQuestion(req, res) {
 
 async function postAnswer(req, res) {
     const { questionid, answer } = req.body;
-    const userid = req.user.userid; // Assuming auth middleware adds user to req
+    const userid = req.user.userid; 
 
     if (!questionid || !answer) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ msg: "Please provide a question ID and answer" });
+        return res.status(404).json({ msg: "Please provide a question ID and answer" });
     }
 
     try {
         const [question] = await MyDataBaseConnection.query("SELECT id FROM questions WHERE questionid = ?", [questionid]);
+        console.log(question)
         
         if (question.length === 0) {
-            return res.status(StatusCodes.NOT_FOUND).json({ msg: "Question not found" });
+            return res.status(404).json({ msg: "Question not found" });
         }
 
         await MyDataBaseConnection.query(
@@ -45,10 +46,10 @@ async function postAnswer(req, res) {
             [userid, questionid, answer]
         );
 
-        return res.status(StatusCodes.CREATED).json({ msg: "Answer posted successfully" });
+        return res.status(404).json({ msg: "Answer posted successfully" });
     } catch (error) {
         console.error(error.message);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "An error occurred while posting the answer" });
+        return res.status(400).json({ msg: "An error occurred while posting the answer" });
     }
 }
 

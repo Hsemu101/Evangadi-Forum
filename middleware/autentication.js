@@ -8,7 +8,8 @@ async function authmiddleware(req, res, next){
     }
 
     try {
-        
+        // const MyObject = jwt.verify(authheader, process.env.JWT_KEY)
+        // console.log(MyObject)
         const {username, userid} = jwt.verify(authheader, process.env.JWT_KEY)
         req.user = { username, userid}
         next()
