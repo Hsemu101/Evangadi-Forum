@@ -26,6 +26,7 @@ const options = {
 const userRoutes = require("./routes/userRoute") //userRoute
 const answerRoutes = require("./routes/answerRoute"); //answerRoute
 const questionRoutes = require("./routes/questionRoute"); // Question routes
+const profileRoutes = require("./routes/UpdateRoute"); // Update user
 const MyDataBaseConnection = require("./db/db.config")
 
 app.use(Express.json());
@@ -33,16 +34,7 @@ app.use(cors());
 app.use("/api/users/",  userRoutes) //user
 app.use("/api", answerRoutes); //answer
 app.use("/api", questionRoutes); //questionRoutes
-
-///question route middle ware
-
-
-
-
-
-// answer route middleware
-
-
+app.use("/api", profileRoutes); // Profile route
 
 
 
